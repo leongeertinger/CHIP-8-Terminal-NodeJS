@@ -1,6 +1,7 @@
 import { Memory } from './memory.js';
 
 export class Rom {
+  //Common for some games to begin at address 0x200
   constructor(memory, startAddress = 0x200) {
     this.memory = memory;
     this.start = startAddress;

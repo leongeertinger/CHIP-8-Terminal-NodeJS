@@ -1,4 +1,5 @@
 export class Font {
+  //Common practice for the fonts to begin at 0x50
   constructor(memory, fontStartAddress = 0x50) {
     this.memory = memory;
     this.start = fontStartAddress;
@@ -21,11 +22,12 @@ export class Font {
       0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     ]);
   }
+  //Loading the fonts into ram
   load() {
     this.memory.set(this.fontSprites, this.start);
   }
+  //Returns the sprite memory address of the given digit. (1 => 0x55)
   getCharAddress(digit) {
     return this.start + (digit & 0xF) * 5;
   }
-
 }
