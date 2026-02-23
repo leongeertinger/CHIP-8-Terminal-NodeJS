@@ -1,7 +1,8 @@
 export class Cpu {
-  constructor(memory, display) {
+  constructor(memory, display, keypad) {
     this.memory = memory;
     this.display = display;
+    this.keypad = keypad;
 
     this.V = new Uint8Array(16);
     this.I = 0;

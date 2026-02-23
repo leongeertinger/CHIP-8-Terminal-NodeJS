@@ -2,12 +2,18 @@ import { Memory } from './memory.js';
 import { Font } from './font.js';
 import { Display } from './display.js';
 import { Cpu } from './cpu.js';
+import { Keypad } from './keypad.js';
+import { setupInput } from './input-node.js';
 
 const ram = new Memory();
 const font = new Font(ram.data);
 font.load();
+
 const display = new Display();
-const cpu = new Cpu(ram.data, display)
+const keypad = new Keypad();
+setupInput(keypad);
+
+const cpu = new Cpu(ram.data, display, keypad)
 
 const playBeep = () => {
   process.stdout.write('\x07'); //terminal beep
