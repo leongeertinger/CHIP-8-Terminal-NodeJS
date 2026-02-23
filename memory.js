@@ -1,1 +1,5 @@
-let memory = new Array(4096)
+export class Memory {
+  constructor(size = 4096) {
+    this.data = new Uint8Array(size)
+  }
+};
