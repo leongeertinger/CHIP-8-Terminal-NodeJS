@@ -15,15 +15,15 @@ setupInput(keypad);
 
 const cpu = new Cpu(ram.data, display, keypad)
 
+const instructionsPerSecond = 700;
+const intervalMs = 1000 / instructionsPerSecond;
+
+setInterval(() => cpu.step(), intervalMs);
+
 const playBeep = () => {
   process.stdout.write('\x07'); //terminal beep
 }
-
-const cpuLoop = () => {
-  cpu.step();
-  setImmediate(cpuLoop);
-}
-
+//60hz
 const timerLoop = () => {
   if (cpu.delayTimer > 0) cpu.delayTimer--;
   if (cpu.soundTimer > 0) {
@@ -33,5 +33,4 @@ const timerLoop = () => {
   setTimeout(timerLoop, 1000 / 60);
 }
 
-cpuLoop();
 timerLoop();
