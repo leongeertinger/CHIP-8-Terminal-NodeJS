@@ -63,9 +63,6 @@ export class Cpu {
           //00EE: return from subroutine
           this.ret();
         }
-        else {
-          console.warn(`Unknown opcode 0x${opcode.toString(16).padStart(4, '0')} at PC=0x${this.programCounter.toString(16)}`);
-        }
         break;
       case 0x1000:
         //1NNN: Jump to address NNN
@@ -94,9 +91,7 @@ export class Cpu {
             this.programCounter += 2;
           }
         }
-        else {
-          console.warn('Unknown opcode 0x5XY*')
-        }
+
         break;
       case 0x9000:
         //9XY0: Skip next instruction if Vx != Vy
@@ -105,9 +100,7 @@ export class Cpu {
             this.programCounter += 2;
           }
         }
-        else {
-          console.warn('Unknown opcode 0x9XY*')
-        }
+
         break;
       case 0x6000:
         //6XNN: Set regsiter Vx
@@ -188,16 +181,23 @@ export class Cpu {
         let vx = this.V[x] & 63;
         let vy = this.V[y] & 31;
         this.V[0xF] = 0;
+
         for (let row = 0; row < n; row++) {
-          if (vy + row >= this.display.height) break;
+          const yPos = vy + row;
+          if (yPos >= this.display.height) break;
+
           const sprite = this.memory[this.I + row];
+
           for (let col = 0; col < 8; col++) {
+            const xPos = vx + col;
             if (vx + col >= this.display.width) break;
-            const xor = this.display.xorPixel(vx + col, vy + row, sprite & (1 << (7 - col)) & 0x1);
-            this.V[0xF] |= xor;
-            vx++
+
+            const bit = (sprite >> (7 - col)) & 1;
+            if (bit) {
+              const collision = this.display.xorPixel(xPos, yPos, 1);
+              this.V[0xF] |= collision;
+            }
           }
-          vy++
         }
         break;
       case 0xE000:
@@ -255,7 +255,7 @@ export class Cpu {
             break;
         }
       default:
-        console.warn(`Unknown opcode 0x${opcode.toString()}`);
+        break;
     }
   }
   call(address) {

@@ -1,5 +1,14 @@
+let firstRender = true;
+
 export const render = display => {
   let output = '';
+
+  if (firstRender) {
+    output += '\x1b[2j'; //clears screen
+    firstRender = false;
+  }
+
+  output += '\x1b[0;0H'; //moves marker to top left
 
   for (let y = 0; y < display.height; y++) {
     for (let x = 0; x < display.width; x++) {
@@ -8,6 +17,5 @@ export const render = display => {
     }
     output += '\n';
   }
-  console.clear();
-  console.log(output);
+  process.stdout.write(output);
 }
