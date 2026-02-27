@@ -1,8 +1,9 @@
 export class Cpu {
 
-  constructor(memory, display, keypad, rom, newerCpu) {
+  constructor(memory, display, font, keypad, rom, newerCpu) {
     this.memory = memory;
     this.display = display;
+    this.font = font;
     this.keypad = keypad;
     this.rom = rom;
 
@@ -16,9 +17,15 @@ export class Cpu {
     this.soundTimer = 0;
 
     this.newerCpu = newerCpu;
+
+    this.waitingForKey = false;
+    this.waitingRegister = null;
   }
 
   step() {
+    //Stop reading instructions if cpu is waiting for input
+    if (this.waitingForKey) return;
+
     //fetch 2 bytes and merge them into one 16bit instruction
     const high = this.memory[this.programCounter];
     const low = this.memory[this.programCounter + 1];
@@ -32,6 +39,13 @@ export class Cpu {
     //Jump to next instruction
     this.programCounter += 2;
     this.decode(opcode);
+  }
+  onKeyPress(key) {
+    if (this.waitingForKey) {
+      this.V[this.waitingRegister] = key;
+      this.waitingForKey = false;
+      this.waitingRegister = null;
+    }
   }
   decode(opcode) {
     const nnn = opcode & 0x0FFF; //12 bit address
@@ -197,6 +211,48 @@ export class Cpu {
           case 0xA1:
             //EXA1: skip if key not pressed
             this.programCounter += !this.keypad.isPressed(key) ? 2 : 0;
+            break;
+        }
+      case 0xF000:
+        switch (opcode & 0xFF) {
+          case 0x07:
+            this.V[x] = this.delayTimer;
+            break;
+          case 0x15:
+            this.delayTimer = this.V[x];
+            break;
+          case 0x18:
+            this.soundTimer = this.V[x];
+            break;
+
+          case 0x1E:
+            this.I += this.V[x];
+            break;
+
+          case 0x0A:
+            this.waitingForKey = true;
+            this.waitingRegister = x;
+            break;
+
+          case 0x29:
+            this.I = this.font.getCharAddress(this.V[x]);
+            break;
+
+          case 0x33:
+            this.memory[this.I] = Math.floor(this.V[x] / 100);
+            this.memory[this.I + 1] = Math.floor(this.V[x] / 10) % 10;
+            this.memory[this.I + 2] = this.V[x] % 10;
+            break;
+
+          case 0x55:
+            for (let i = 0; i <= x; i++) {
+              this.memory[this.I + i] = this.V[i];
+            }
+            break;
+          case 0x65:
+            for (let i = 0; i <= x; i++) {
+              this.V[i] = this.memory[this.I + i];
+            }
             break;
         }
       default:

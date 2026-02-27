@@ -25,10 +25,11 @@ const answer = (await rl.question(
 )).trim().toLowerCase();
 const newerCpu = (answer === 'y');
 
-const cpu = new Cpu(ram.data, display, keypad, newerCpu);
+const cpu = new Cpu(ram.data, display, font, keypad, newerCpu);
 
 const instructionsPerSecond = 700;
 const intervalMs = 1000 / instructionsPerSecond;
+keypad.onKey = (chipKey) => cpu.onKeyPress(chipKey);
 
 setInterval(() => cpu.step(), intervalMs);
 
