@@ -1,4 +1,5 @@
 let firstRender = true;
+console.clear();
 
 export const render = display => {
   let output = '';
