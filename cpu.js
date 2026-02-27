@@ -187,6 +187,18 @@ export class Cpu {
           vy++
         }
         break;
+      case 0xE000:
+        const key = this.V[x] & 0xF;
+        switch (opcode & 0x00FF) {
+          case 0x9E:
+            //EX9E: skip if key pressed
+            this.programCounter += this.keypad.isPressed(key) ? 2 : 0;
+            break;
+          case 0xA1:
+            //EXA1: skip if key not pressed
+            this.programCounter += !this.keypad.isPressed(key) ? 2 : 0;
+            break;
+        }
       default:
         console.warn(`Unknown opcode 0x${opcode.toString()}`);
     }
