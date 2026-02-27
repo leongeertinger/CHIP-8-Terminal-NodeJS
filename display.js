@@ -27,8 +27,9 @@ export class Display {
   // 1 : 1 => 0
   xorPixel(x, y, value) {
     const index = this.#index(x, y);
-    const oldValue = this.pixels[index];
-    const newValue = oldValue ^ value;
+    const oldValue = this.pixels[index] & 1;
+    const bit = value ? 1 : 0;
+    const newValue = oldValue ^ bit;
     this.pixels[index] = newValue;
     return oldValue === 1 && newValue === 0 ? 1 : 0;
   }

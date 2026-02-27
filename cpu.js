@@ -172,6 +172,20 @@ export class Cpu {
         break;
       case 0xD000:
         //DXYN: draw/display
+        const vx = this.V[x] & 63;
+        const vy = this.V[y] & 31;
+        this.V[0xF] = 0;
+        for (let row = 0; row < n; row++) {
+          if (vy + row >= this.display.height) break;
+          const sprite = this.memory[this.I + row];
+          for (let col = 0; col < 8; col++) {
+            if (vx + col >= this.display.width) break;
+            const xor = this.display.xorPixel(vx + col, vy + row, sprite & (1 << (7 - col)) & 0x1);
+            this.V[0xF] |= xor;
+            vx++
+          }
+          vy++
+        }
         break;
       default:
         console.warn(`Unknown opcode 0x${opcode.toString()}`);
