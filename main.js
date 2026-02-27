@@ -25,18 +25,20 @@ const romBytes = fs.readFileSync(romPath);
 const rom = new Rom(ram.data);
 rom.load(romBytes);
 
-// 3. Create display + keypad + handle input
-const display = new Display();
-const keypad = new Keypad();
-setupInput(keypad);
 
-// 4. Prompt to use for the shift behavior in decode function
+// 3. Prompt to use for the shift behavior in decode function
 const rl = readline.createInterface({ input, output })
 const answer = (await rl.question(
   "Use newer cpu behavior (CHIP-48 / SUPER-CHIP)? (y/n)"
 )).trim().toLowerCase();
-rl.close();
 const newerCpu = (answer === 'y');
+await rl.close();
+
+// 4. Create display + keypad + handle input
+const display = new Display();
+const keypad = new Keypad();
+setupInput(keypad);
+
 // 5. Create the CPU instance
 const cpu = new Cpu(ram.data, display, font, keypad, newerCpu);
 

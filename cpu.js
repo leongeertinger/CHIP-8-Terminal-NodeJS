@@ -143,12 +143,12 @@ export class Cpu {
             break;
           case 0x6:
             //Modern variant
-            if (this.newerCpu === 'y') {
+            if (this.newerCpu === true) {
               this.V[0xF] = this.V[x] & 1;
               this.V[x] = (this.V[x] >> 1) & 0xFF;
             }
             //Older variant
-            else if (this.newerCpu === 'n') {
+            else if (this.newerCpu === false) {
               this.V[x] = this.V[y];
               this.V[0xF] = this.V[x] & 1;
               this.V[x] = (this.V[x] >> 1) & 0xFF;
@@ -156,18 +156,19 @@ export class Cpu {
             break;
           case 0xE:
             //Modern variant
-            if (this.newerCpu === 'y') {
+            if (this.newerCpu === true) {
               this.V[0xF] = (this.V[x] & 0x80) !== 0 ? 1 : 0;
               this.V[x] = (this.V[x] << 1) & 0xFF;
             }
             //Older variant
-            else if (this.newerCpu === 'n') {
+            else if (this.newerCpu === false) {
               this.V[x] = this.V[y];
               this.V[0xF] = (this.V[x] & 0x80) !== 0 ? 1 : 0;
               this.V[x] = (this.V[x] << 1) & 0xFF;
             }
             break;
         }
+        break;
       case 0xB000:
         //BNNN: jump to address NNN + V0
         this.programCounter = nnn + this.V[0];
@@ -212,6 +213,7 @@ export class Cpu {
             this.programCounter += !this.keypad.isPressed(key) ? 2 : 0;
             break;
         }
+        break;
       case 0xF000:
         switch (opcode & 0x00FF) {
           case 0x07:
@@ -254,6 +256,7 @@ export class Cpu {
             }
             break;
         }
+        break;
       default:
         break;
     }
