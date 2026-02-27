@@ -91,7 +91,6 @@ export class Cpu {
             this.programCounter += 2;
           }
         }
-
         break;
       case 0x9000:
         //9XY0: Skip next instruction if Vx != Vy
@@ -179,8 +178,8 @@ export class Cpu {
         break;
       case 0xD000:
         //DXYN: draw/display
-        let vx = this.V[x] & 63;
-        let vy = this.V[y] & 31;
+        let vx = this.V[x] & 0x3F;
+        let vy = this.V[y] & 0x1F;
         this.V[0xF] = 0;
 
         for (let row = 0; row < n; row++) {
@@ -194,10 +193,9 @@ export class Cpu {
             if (vx + col >= this.display.width) break;
 
             const bit = (sprite >> (7 - col)) & 1;
-            if (bit) {
-              const collision = this.display.xorPixel(xPos, yPos, 1);
-              this.V[0xF] |= collision;
-            }
+            if (bit === 0) continue;
+            const collision = this.display.xorPixel(xPos, yPos, 1);
+            if (collision) this.V[0xF] = 1;
           }
         }
         break;
