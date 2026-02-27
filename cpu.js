@@ -1,11 +1,10 @@
 export class Cpu {
 
-  constructor(memory, display, font, keypad, rom, newerCpu) {
+  constructor(memory, display, font, keypad, newerCpu) {
     this.memory = memory;
     this.display = display;
     this.font = font;
     this.keypad = keypad;
-    this.rom = rom;
 
     this.V = new Uint8Array(16);
     this.I = 0;
@@ -25,6 +24,7 @@ export class Cpu {
   step() {
     //Stop reading instructions if cpu is waiting for input
     if (this.waitingForKey) return;
+
 
     //fetch 2 bytes and merge them into one 16bit instruction
     const high = this.memory[this.programCounter];
@@ -58,16 +58,15 @@ export class Cpu {
         if (opcode === 0x00E0) {
           //00E0: clear screen
           this.display.clear();
-          break;
         }
         else if (opcode === 0x00EE) {
           //00EE: return from subroutine
           this.ret();
-          break;
         }
         else {
-          console.warn(`Unknown opcode 0x${opcode.toString()}`);
+          console.warn(`Unknown opcode 0x${opcode.toString(16).padStart(4, '0')} at PC=0x${this.programCounter.toString(16)}`);
         }
+        break;
       case 0x1000:
         //1NNN: Jump to address NNN
         this.programCounter = nnn;
@@ -116,7 +115,7 @@ export class Cpu {
         break;
       case 0x7000:
         //7XNN: Add KK to Vx
-        this.V[x] += (this.V[x] + kk) & 0xFF;
+        this.V[x] = (this.V[x] + kk) & 0xFF;
         break;
       case 0xA000:
         //ANNN: set index I
@@ -186,8 +185,8 @@ export class Cpu {
         break;
       case 0xD000:
         //DXYN: draw/display
-        const vx = this.V[x] & 63;
-        const vy = this.V[y] & 31;
+        let vx = this.V[x] & 63;
+        let vy = this.V[y] & 31;
         this.V[0xF] = 0;
         for (let row = 0; row < n; row++) {
           if (vy + row >= this.display.height) break;
@@ -214,7 +213,7 @@ export class Cpu {
             break;
         }
       case 0xF000:
-        switch (opcode & 0xFF) {
+        switch (opcode & 0x00FF) {
           case 0x07:
             this.V[x] = this.delayTimer;
             break;
