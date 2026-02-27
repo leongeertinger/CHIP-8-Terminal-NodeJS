@@ -1,4 +1,4 @@
-import { keymap } from './keymap';
+import { keymap } from './keymap.js';
 
 export const setupInput = keypad => {
   //Rawmode for continous stream of keypresses
