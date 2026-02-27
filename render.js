@@ -5,7 +5,7 @@ export const render = display => {
   let output = '';
 
   if (firstRender) {
-    output += '\x1b[2j'; //clears screen
+    output += '\x1b[2J'; //clears screen
     firstRender = false;
   }
 
