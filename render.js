@@ -1,3 +1,7 @@
+import settings from './settings.json';
+
+const { mainColor, backgroundColor } = settings;
+
 let firstRender = true;
 console.clear();
 
