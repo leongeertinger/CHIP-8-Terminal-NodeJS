@@ -9,6 +9,7 @@ import { renderMenu } from './services/menu-render.js';
 import { Cpu } from './emu/cpu.js';
 import { Keypad } from './emu/keypad.js';
 import { setupInput } from './services/input.js';
+import { loadSettings, saveSettings } from './services/settings-service.js';
 import { StateManager } from './services/stateManager.js';
 import { SettingsMenu } from './ui/settings-menu.js';
 import { RomMenu } from './ui/rom-menu.js';
@@ -18,6 +19,8 @@ import { keymap } from './emu/keymap.js';
 export class App {
   constructor() {
     this.state = new StateManager('main-menu');
+    
+    
 
     this.ram = new Memory();
     this.font = new Font(this.ram.data);
@@ -29,8 +32,23 @@ export class App {
     this.cpu = new Cpu(this.ram.data, this.display, this.font, this.keypad);
 
     this.rom = new Rom(this.ram.data);
-    
-    this.settingsMenu = new SettingsMenu(this.state);
+
+    this.settingsData = loadSettings();
+
+    this.settings = {
+      foreground: this.settingsData.currentColor.foreground,
+      background: this.settingsData.currentColor.background
+    };
+
+    this.colorOptions = Object.keys(this.settingsData.colors);
+
+    this.settingsMenu = new SettingsMenu(
+      this.state,
+      this.settings,
+      this.updateColorSetting,
+      this.colorOptions
+      
+    );
     this.romMenu = new RomMenu(this.state);
     this.mainMenu = new MainMenu(this.state);
 
@@ -78,7 +96,7 @@ export class App {
     if (this.state.is('main-menu')) {
       if (key === 'w') this.mainMenu.moveUp();
       if (key === 's') this.mainMenu.moveDown();
-      if (key === 'd' || rawKey === '\r') this.mainMenu.select();
+      if (rawKey === '\r') this.mainMenu.select();
       return;
     }
 
@@ -91,7 +109,7 @@ export class App {
         return;
       }
 
-      if (key === 'd' || rawKey === '\r') {
+      if (rawKey === '\r') {
         const selected = this.romMenu.select();
         if (selected && selected !== 'back') {
           this.loadRomByName(selected);
@@ -103,16 +121,24 @@ export class App {
     if (this.state.is('settings-menu')) {
       if (key === 'w') this.settingsMenu.moveUp();
       if (key === 's') this.settingsMenu.moveDown();
+      if (key === 'd') this.settingsMenu.cycleRight();
+      if (key === 'a') this.settingsMenu.cycleLeft();
 
       if (rawKey === '\u001b') {
         this.state.setState('main-menu');
         return;
       }
 
-      if (key === 'd' || rawKey === '\r') {
+      if (rawKey === '\r') {
         this.settingsMenu.select();
       }
     }
+  };
+  
+  updateColorSetting = (type, value) => {
+    this.settings[type] = value;
+    this.settingsData.currentColor[type] = value;
+    saveSettings(this.settingsData);
   };
 
   playBeep = () => {
@@ -135,7 +161,7 @@ export class App {
     if (this.state.is('exit')) return;
 
     if (this.state.is('running')) {
-      renderDisplay(this.display);
+      renderDisplay(this.display, this.settings, this.settingsData);
     } 
     else if (this.state.is('main-menu')) {
       renderMenu(this.mainMenu.getLines());

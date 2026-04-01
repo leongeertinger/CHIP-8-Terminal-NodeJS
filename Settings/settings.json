@@ -1,4 +1,8 @@
 {
+  "currentColor": {
+    "foreground": "white",
+    "background": "black"
+  },
   "colors": {
     "white": "#FFFFFF",
     "black": "#000000",

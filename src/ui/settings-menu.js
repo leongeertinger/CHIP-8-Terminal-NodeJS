@@ -1,7 +1,10 @@
 export class SettingsMenu {
-  constructor(state) {
+  constructor(state, settings, updateColorSettings, colorOptions) {
     this.state = state;
-    this.options = ['Coming soon', 'Back'];
+    this.settings = settings;
+    this.updateColorSettings = updateColorSettings;
+    this.colorOptions = colorOptions;
+    this.options = ['Foreground color', 'Background color', 'Back'];
     this.hovered = 0;
   }
 
@@ -12,25 +15,63 @@ export class SettingsMenu {
   moveDown() {
     this.hovered = (this.hovered + 1) % this.options.length;
   }
-
-  select() {
-    if (this.hovered === 1) {
+  cycleRight() {
+    if (this.hovered === 0){
+      const next = this.#nextValue(this.colorOptions, this.settings.foreground);
+      this.updateColorSettings('foreground', next);
+        
+    }
+    else if (this.hovered === 1){
+      const next = this.#nextValue(this.colorOptions, this.settings.background);
+      this.updateColorSettings('background', next);
+        
+    }
+    else if (this.hovered === 2){
       this.state.setState('main-menu');
     }
+  }
+  cycleLeft() {
+    if (this.hovered === 0){
+      const prev = this.#prevValue(this.colorOptions, this.settings.foreground);
+      this.updateColorSettings('foreground', prev);
+        
+    }
+    else if (this.hovered === 1){
+      const prev = this.#prevValue(this.colorOptions, this.settings.background);
+      this.updateColorSettings('background', prev);
+        
+    }
+    else if (this.hovered === 2){
+      this.state.setState('main-menu');
+    }
+
+  }
+  select() {
+    if (this.hovered === 2) {
+      this.state.setState('main-menu');
+    }
+  }
+
+  #nextValue(list, current) {
+    const i = list.indexOf(current);
+    return list[(i + 1) % list.length] 
+  }
+
+  #prevValue(list, current) {
+    const i = list.indexOf(current);
+    return list[(i - 1 + list.length) % list.length] 
   }
 
   getLines() {
     const lines = [
       '=== SETTINGS ===',
       '',
-      'Settings menu is not implemented yet.',
-      ''
+      'Use A/D to change values',
+      '',
+      `${this.hovered === 0 ? '▶' : ' '} Foreground: < ${this.settings.foreground} >`,
+      `${this.hovered === 1 ? '▶' : ' '} Background: < ${this.settings.background} >`,
+      `${this.hovered === 2 ? '▶' : ' '} Back`
     ];
-
-    for (let i = 0; i < this.options.length; i++) {
-      const prefix = i === this.hovered ? '▶ ' : '  ';
-      lines.push(`${prefix}${this.options[i]}`);
-    }
 
     return lines;
   }

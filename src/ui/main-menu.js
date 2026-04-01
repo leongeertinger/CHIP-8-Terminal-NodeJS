@@ -33,7 +33,7 @@ export class MainMenu {
       '╚══════════════════════════════════════╝',
       '',
       'Use W/S to move',
-      'Use D or Enter to select',
+      'Use Enter to select',
       'Press Esc to go back',
       'Press Ctrl+C to Quit',
       '',
