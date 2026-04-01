@@ -1,10 +1,11 @@
-export const render = (menuOptions, hovered) => {
-  for (let i = 0; i < menuOptions.length(); i++){
-    if i == hovered{
-      console.log(menuOptions[i]);
-    }
-    else{
-      console.log(menuOptions[i]);
-    }
+export const renderMenu = (lines) => {
+  let output = '';
+  output += '\x1b[2J';
+  output += '\x1b[0;0H';
+
+  for (const line of lines) {
+    output += line + '\n';
   }
-}
+
+  process.stdout.write(output);
+};

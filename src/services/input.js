@@ -1,7 +1,7 @@
-import { keymap } from './keymap.js';
+import { keymap } from '../emu/keymap.js';
 import { execSync } from 'node:child_process';
 
-export const setupInput = (keypad, state) => {
+export const setupInput = onKey => {
 
   if (process.stdin.isTTY) {
     //Disabling console echo
@@ -10,12 +10,10 @@ export const setupInput = (keypad, state) => {
     } catch (error) {
       console.error('Error disabling echo:', error);
     }
-  }
-
-  //Rawmode for continous stream of keypresses
-  if (process.stdin.isTTY) {
+    //Rawmode for continous stream of keypresses
     process.stdin.setRawMode(true);
   }
+
   process.stdin.resume();
   //encoding to convert bytes to strings
   process.stdin.setEncoding("utf8");
@@ -37,13 +35,6 @@ export const setupInput = (keypad, state) => {
     if (key === "\u0003") { //Ctrl + c
       process.exit();
     }
-
-    const lower = key.toLowerCase();
-    const chipKey = keymap[lower];
-
-    if (chipKey !== undefined) {
-      keypad.press(chipKey);
-      setTimeout(() => keypad.release(chipKey), 50);
-    }
+    onKey(key);
   });
 }

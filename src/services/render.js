@@ -1,5 +1,3 @@
-import settings from '../Settings/settings.json' assert { type: "json" };
-
 let firstRender = true;
 console.clear();
 
