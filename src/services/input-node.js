@@ -1,9 +1,10 @@
 import { keymap } from './keymap.js';
 import { execSync } from 'node:child_process';
 
-export const setupInput = keypad => {
+export const setupInput = (keypad, state) => {
 
   if (process.stdin.isTTY) {
+    //Disabling console echo
     try {
       execSync('stty -echo', { stdio: 'inherit' });
     } catch (error) {
@@ -18,7 +19,7 @@ export const setupInput = keypad => {
   process.stdin.resume();
   //encoding to convert bytes to strings
   process.stdin.setEncoding("utf8");
-  //Listen for data and pass key as argument
+  //Listen för process exit and turn terminal echo back on
   process.on('exit', () => {
     if (process.stdin.isTTY) {
       try {
@@ -31,6 +32,7 @@ export const setupInput = keypad => {
     //Show marker again
     process.stdin.write('\x1b[?25h');
   })
+  //Listen for data and pass key as argument
   process.stdin.on("data", key => {
     if (key === "\u0003") { //Ctrl + c
       process.exit();
